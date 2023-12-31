@@ -3,6 +3,12 @@
 sizeof can get the size of a C type or the value of a C constant for you without
 having to write a test program, or tracking down a header.
 
+## installation
+
+```
+sudo make install
+```
+
 ## usage
 
 ```
