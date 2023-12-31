@@ -22,9 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+usage() {
+    echo "usage: $0 [-i,--include HEADER] [-v,--value CONSTANT | TYPE]" >&2
+    exit 1
+}
+
+options=$(getopt -o i:v --long value --long include: -- "$@")
+[[ $? != 0 ]] && usage
+eval set -- "$options"
 
 cfile=$(mktemp --suffix=.c)
 exefile=$(mktemp)
+
 
 cat <<EOF > $cfile
 // this is a list of all posix headers from
@@ -114,14 +123,50 @@ cat <<EOF > $cfile
 #include <wctype.h>
 #include <wordexp.h>
 
+// custom includes
+EOF
+
+value_mode=0
+while true; do
+    case $1 in
+        -i | --include)
+            echo "#include \"$2\"" >> $cfile
+            shift
+            shift
+            ;;
+        -v | --value)
+            value_mode=1
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+done
+
+if [[ $value_mode == 1 ]]; then
+    cat <<EOF >> $cfile
+
+int main() {
+    printf("%i\n", $@);
+    return 0;
+}
+EOF
+
+else
+    cat <<EOF >> $cfile
+
 int main() {
     printf("%i\n", sizeof($@));
     return 0;
 }
 EOF
 
+fi
+
 rc=1
-if gcc $cfile -o $exefile; then
+if gcc -I. $cfile -o $exefile; then
     rc=0
     $exefile
 fi
