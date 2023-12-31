@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 usage() {
-    echo "usage: $0 [-i,--include HEADER] [-v,--value CONSTANT | TYPE]" >&2
+    echo "usage: sizeof [-i,--include HEADER] [-v,--value CONSTANT | TYPE]" >&2
     exit 1
 }
 
